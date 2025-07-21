@@ -3,38 +3,45 @@ name: dbt Checkpoint Hooks
 on:
   pull_request:
     branches:
-      - main
+      - main  # Only run this workflow for PRs targeting the 'main' branch
 
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the code
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Required to compare full commit history (for git diff)
 
+      # Step 2: Set up Python environment
       - uses: actions/setup-python@v2
         with:
           python-version: "3.9"
 
+      # Step 3: Install dbt-core, dbt-snowflake, pre-commit, and dbt-checkpoint
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pre-commit dbt-core dbt-snowflake
           pip install git+https://github.com/dbt-checkpoint/dbt-checkpoint.git
 
+      # Step 4: Copy dummy dbt profile (used for parsing only, no DB connection)
       - name: Set up dbt profiles.yml
         run: |
           mkdir -p ~/.dbt
           cp .github/dummy_profiles.yml ~/.dbt/profiles.yml
 
+      # Step 5: Install dbt dependencies from packages.yml
       - name: Install dbt packages
         run: dbt deps
 
+      # Step 6: Parse the dbt project to populate manifest.json
       - name: Parse dbt project (no database connection)
         run: dbt parse
 
+      # Step 7: Get changed .sql files between base (start of PR) and current commit
       - name: Get changed SQL files from PR base
         id: get_sql_files
         run: |
@@ -49,7 +56,7 @@ jobs:
           echo "$files" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-
+      # Step 8: Run dbt-checkpoint hooks (via pre-commit) on changed files only
       - name: Run dbt-checkpoint only on changed files
         id: run_checkpoint
         run: |
@@ -62,25 +69,23 @@ jobs:
           echo "Checking: ${files[*]}"
           pre-commit run --files "${files[@]}" | tee checkpoint_output.txt
 
+      # Step 9: Clean output and write results to GitHub job summary
       - name: Add dbt-checkpoint summary to GitHub job summary
         if: always()
         run: |
           echo '### dbt-checkpoint Summary' >> $GITHUB_STEP_SUMMARY
 
-          # Strip ANSI color codes
+          # Strip ANSI color codes from pre-commit output
           sed -r "s:\x1B\[[0-9;]*[mK]::g" checkpoint_output.txt > clean_output.txt
 
-          # Append pass/fail message
+          # Show ✅ or ⚠️ message based on whether any checks failed
           if grep -q "Failed" clean_output.txt; then
             echo '⚠️ Some dbt-checkpoint checks failed. Please review the output below.' >> $GITHUB_STEP_SUMMARY
           else
             echo '✅ All dbt-checkpoint checks passed successfully!' >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Dump clean output
+          # Print full cleaned checkpoint output in markdown code block
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat clean_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-
-
-          
