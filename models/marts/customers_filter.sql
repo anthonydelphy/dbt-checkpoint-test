@@ -54,4 +54,4 @@ joined as (
 )
 
 select * 
-from customer_orders_summary.customer_id
+from joined
