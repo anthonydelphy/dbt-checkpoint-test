@@ -42,8 +42,15 @@ jobs:
           output: " "
 
       - name: Run dbt checkpoint
-        uses: dbt-checkpoint/action@v0.1
-        with:
-          extra_args: --files ${{ steps.get_file_changes.outputs.files }}
-          dbt_version: 1.6.3
-          dbt_adapter: dbt-snowflake
+        id: checkpoint
+        run: |
+          dbt-checkpoint --files "${{ steps.get_file_changes.outputs.files }}" \
+            --dbt-version 1.6.3 --dbt-adapter dbt-snowflake | tee checkpoint_output.txt
+
+      - name: Add dbt-checkpoint summary to GitHub job summary
+        if: always()
+        run: |
+          echo '### dbt-checkpoint Summary' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          awk '/- hook id:/,EOF' checkpoint_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
