@@ -55,4 +55,4 @@ joined as (
 
 )
 
-select * from customer_orders_summary.customer_id
+select * from joined
