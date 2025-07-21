@@ -70,13 +70,17 @@ jobs:
           # Strip ANSI color codes
           sed -r "s:\x1B\[[0-9;]*[mK]::g" checkpoint_output.txt > clean_output.txt
 
-          # Dump full clean output
+          # Append pass/fail message
+          if grep -q "Failed" clean_output.txt; then
+            echo '⚠️ Some dbt-checkpoint checks failed. Please review the output below.' >> $GITHUB_STEP_SUMMARY
+          else
+            echo '✅ All dbt-checkpoint checks passed successfully!' >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Dump clean output
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat clean_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-          if grep -q "Failed" clean_output.txt; then
-            echo '⚠️ Some dbt-checkpoint checks failed. Please review the output above.' >> $GITHUB_STEP_SUMMARY
-          else
-            echo '✅ All dbt-checkpoint checks passed successfully!' >> $GITHUB_STEP_SUMMARY
-          fi
+
+          
