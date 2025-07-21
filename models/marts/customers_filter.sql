@@ -56,4 +56,4 @@ joined as (
 )
 
 select * 
-from customer_orders_summary.count_lifetime_orders
+from joined
