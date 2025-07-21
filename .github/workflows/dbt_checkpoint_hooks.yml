@@ -35,21 +35,24 @@ jobs:
       - name: Parse dbt project (no database connection)
         run: dbt parse
 
-      - id: get_file_changes
-        uses: trilom/file-changes-action@v1.2.4
-        with:
-          output: " "
+      - name: Get changed SQL files
+        id: get_sql_files
+        run: |
+          files=$(git diff --name-only "$GITHUB_BASE_REF" "$GITHUB_HEAD_REF" -- '*.sql')
+          echo "sql_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$files" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Run dbt-checkpoint only on changed files
         id: run_checkpoint
         run: |
-          read -ra files <<< "${{ steps.get_file_changes.outputs.files }}"
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No changed files to check."
+          read -r -a files <<< "${{ steps.get_sql_files.outputs.sql_files }}"
+          if [ -z "${files[*]}" ]; then
+            echo "No changed SQL files to check."
             exit 0
           fi
 
-          echo "Running dbt-checkpoint on changed files: ${files[*]}"
+          echo "Checking: ${files[*]}"
           pre-commit run --files "${files[@]}" | tee checkpoint_output.txt
 
       - name: Add dbt-checkpoint summary to GitHub job summary
