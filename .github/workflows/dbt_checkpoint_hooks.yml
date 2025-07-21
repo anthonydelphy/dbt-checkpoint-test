@@ -35,13 +35,20 @@ jobs:
       - name: Parse dbt project (no database connection)
         run: dbt parse
 
-      - name: Get changed SQL files
+      - name: Get changed SQL files from PR base
         id: get_sql_files
         run: |
-          files=$(git diff --name-only "$GITHUB_BASE_REF" "$GITHUB_HEAD_REF" -- '*.sql')
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          head_sha="${GITHUB_SHA}"
+
+          echo "Comparing base $base_sha to head $head_sha"
+
+          files=$(git diff --name-only "$base_sha" "$head_sha" -- '*.sql')
+
           echo "sql_files<<EOF" >> $GITHUB_OUTPUT
           echo "$files" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
 
       - name: Run dbt-checkpoint only on changed files
         id: run_checkpoint
