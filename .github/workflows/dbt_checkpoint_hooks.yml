@@ -1,8 +1,7 @@
-name: dbt checkpoint checks
+name: dbt Checkpoint Hooks
 
 on:
   pull_request:
-  push:
     branches:
       - main
 
@@ -66,9 +65,8 @@ jobs:
           cat clean_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-          # Append a success or warning note
           if grep -q "Failed" clean_output.txt; then
-            echo 'Some dbt-checkpoint checks failed. Please review the output above.' >> $GITHUB_STEP_SUMMARY
+            echo '⚠️ Some dbt-checkpoint checks failed. Please review the output above.' >> $GITHUB_STEP_SUMMARY
           else
-            echo 'All dbt-checkpoint checks passed successfully!' >> $GITHUB_STEP_SUMMARY
+            echo '✅ All dbt-checkpoint checks passed successfully!' >> $GITHUB_STEP_SUMMARY
           fi
