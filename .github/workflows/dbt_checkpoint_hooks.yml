@@ -83,6 +83,13 @@ jobs:
           # Strip ANSI color codes from pre-commit output
           sed -r "s:\x1B\[[0-9;]*[mK]::g" checkpoint_output.txt > clean_output.txt
 
+          # Echo which files were checked
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '**Files checked:**' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.get_changed_files.outputs.changed_files }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
           # Show ✅ or ⚠️ message based on whether any checks failed
           if grep -q "Failed" clean_output.txt; then
             echo '⚠️ Some dbt-checkpoint checks failed. Please review the output below.' >> $GITHUB_STEP_SUMMARY
@@ -90,7 +97,9 @@ jobs:
             echo '✅ All dbt-checkpoint checks passed successfully!' >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Print full cleaned checkpoint output in markdown code block
+          # Dump pre-commit output
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '**Detailed Output:**' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat clean_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
