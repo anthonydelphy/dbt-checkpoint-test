@@ -6,7 +6,7 @@ on:
       - main  # Only run this workflow for PRs targeting the 'main' branch
 
 jobs:
-  pre-commit:
+  dbt-checkpoint:
     runs-on: ubuntu-latest
 
     steps:
