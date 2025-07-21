@@ -75,6 +75,11 @@ jobs:
         run: |
           echo '### dbt-checkpoint Summary' >> $GITHUB_STEP_SUMMARY
 
+          if [ ! -f checkpoint_output.txt ]; then
+            echo 'No dbt-checkpoint output was generated. Likely no .sql files were modified.' >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
           # Strip ANSI color codes from pre-commit output
           sed -r "s:\x1B\[[0-9;]*[mK]::g" checkpoint_output.txt > clean_output.txt
 
