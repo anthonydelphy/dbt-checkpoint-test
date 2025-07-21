@@ -87,7 +87,7 @@ jobs:
           echo '' >> $GITHUB_STEP_SUMMARY
           echo '**Files checked:**' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${files[@]}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.get_sql_files.outputs.sql_files }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
           # Show ✅ or ⚠️ message based on whether any checks failed
@@ -103,3 +103,4 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat clean_output.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
+
