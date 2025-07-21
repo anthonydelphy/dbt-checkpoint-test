@@ -67,7 +67,7 @@ jobs:
           fi
 
           echo "Checking: ${files[*]}"
-          pre-commit run --files "${files[@]}" | tee checkpoint_output.txt
+          pre-commit run check-model-has-properties-file check-script-has-no-table-name --files "${files[@]}" | tee checkpoint_output.txt
 
       # Step 9: Clean output and write results to GitHub job summary
       - name: Add dbt-checkpoint summary to GitHub job summary
