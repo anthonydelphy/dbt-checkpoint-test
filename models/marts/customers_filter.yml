@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: customers_filter
+    description: >
+      Enriched customer model that joins customer records with aggregated order metrics
+      to determine lifetime value, order frequency, and customer classification.
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+
+      - name: count_lifetime_orders
+        description: Total number of distinct orders placed by the customer.
+
+      - name: first_ordered_at
+        description: Timestamp of the customer's first order.
+
+      - name: last_ordered_at
+        description: Timestamp of the customer's most recent order.
+
+      - name: lifetime_spend_pretax
+        description: Sum of all pre-tax order subtotals by the customer.
+
+      - name: lifetime_tax_paid
+        description: Total tax paid by the customer across all orders.
+
+      - name: lifetime_spend
+        description: Total order spend including tax across all orders.
+
+      - name: customer_type
+        description: Classification of the customer as 'new' or 'returning' based on order count.
+
+    meta:
+      owner: your_team_or_email_here
+      maturity: low
