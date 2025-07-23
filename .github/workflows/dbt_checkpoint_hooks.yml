@@ -108,7 +108,13 @@ jobs:
       - name: Fail job if dbt-checkpoint failed
         run: |
           exit_code="${{ steps.run_checkpoint.outputs.exit_code }}"
+
           if [ "$exit_code" -ne 0 ]; then
-            echo "dbt-checkpoint checks failed."
+            echo "dbt-checkpoint checks failed. See below for details:"
+            echo "------------------------------------------------------"
+            cat clean_output.txt || echo "clean_output.txt not found"
+            echo "------------------------------------------------------"
             exit $exit_code
+          else
+            echo "All checks passed."
           fi
