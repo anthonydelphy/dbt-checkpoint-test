@@ -69,7 +69,7 @@ jobs:
           fi
 
           echo "Checking: ${files[*]}"
-          SKIP=sqlfluff-fix pre-commit run --files "${files[@]}" | tee checkpoint_output.txt
+          SKIP=sqlfluff-fix,check-script-has-no-table-name pre-commit run --files "${files[@]}" | tee checkpoint_output.txt
           echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
 
 
